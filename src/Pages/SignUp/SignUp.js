@@ -1,11 +1,18 @@
 import React from 'react'
 import {useState} from 'react';
 import{Link, useNavigate} from 'react-router-dom';
-import {getAuth, createUserWithEmailAndPassword, updateProfile} from 'firebase/auth'
-import {db} from '../../firebase.config';
-
 import {ReactComponent as ArrowRightIcon} from '../../assets/svg/keyboardArrowRightIcon.svg';
 import visibilityIcon from '../../../src/assets/svg/visibilityIcon.svg';
+
+
+// ////////////////  firebase imports  /////////////////////////////
+
+import {getAuth, createUserWithEmailAndPassword, updateProfile} from 'firebase/auth'
+import {db} from '../../firebase.config';
+import { setDoc, doc, serverTimesStamp} from 'firebase/firestore'
+
+// /////////////////////////////////////////////////
+
 
 
 function SignUp() {
@@ -31,7 +38,7 @@ const onChange = (e) => {
   }))
 }
 
-// ////////////////////////////////////////////
+// /////////////////  User Auothinification -- Firebase ///////////////////////
 
 const onSubmit = async (e) => {
   e.preventDefault()
@@ -46,6 +53,11 @@ const onSubmit = async (e) => {
     const user = userCredential.user 
     
     updateProfile(auth.currentUser, {displayName: name})
+
+    // ///////////////  Data Send to Firebase ///////////////////////////
+    
+    
+    // ////// We make make a copy of an object by 
 
     navigate('/')
 
