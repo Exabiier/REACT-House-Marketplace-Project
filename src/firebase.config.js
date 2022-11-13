@@ -11,10 +11,10 @@ const firebaseConfig = {
   authDomain: `${process.env.REACT_APP_FIREBASE_AUTHDOMAIN}`,
   projectId: `${process.env.REACT_APP_FIREBASE_PROJECTID}`,
   storageBucket: `${process.env.REACT_APP_FIREBASE_STORAGEBUCKET}`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APPID
-};
+  messagingSenderId: `${process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID}`,
+  appId: `${process.env.REACT_APP_FIREBASE_APPID
+}`};
 
 // Initialize Firebase
-initializeApp(firebaseConfig);
-export const db = getFirestore();
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);

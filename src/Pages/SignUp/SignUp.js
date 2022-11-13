@@ -9,7 +9,7 @@ import visibilityIcon from '../../../src/assets/svg/visibilityIcon.svg';
 
 import {getAuth, createUserWithEmailAndPassword, updateProfile} from 'firebase/auth'
 import {db} from '../../firebase.config';
-import { setDoc, doc, serverTimesStamp} from 'firebase/firestore'
+import { setDoc, doc, serverTimestamp} from 'firebase/firestore'
 
 // /////////////////////////////////////////////////
 
@@ -57,7 +57,19 @@ const onSubmit = async (e) => {
     // ///////////////  Data Send to Firebase ///////////////////////////
     
     
-    // ////// We make make a copy of an object by 
+    // ////// We make make a copy of an object by useing the spred opderator //////////////
+
+    const formDataCopy = {...formData}
+
+      // We are deleting the password because we dont need that data in the databse
+    delete formDataCopy.password;
+
+    // We are getting the timeStamp from the firebase server
+    formDataCopy.timestamp = serverTimestamp();
+      console.log(formDataCopy)
+      console.log(user.uid)
+      
+    await setDoc(doc(db, 'users', user.uid), formDataCopy)
 
     navigate('/')
 
