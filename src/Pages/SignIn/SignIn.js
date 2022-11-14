@@ -1,4 +1,15 @@
 import React from 'react'
+import {useState} from 'react';
+import{Link, useNavigate} from 'react-router-dom';
+import {ReactComponent as ArrowRightIcon} from '../../assets/svg/keyboardArrowRightIcon.svg';
+import visibilityIcon from '../../../src/assets/svg/visibilityIcon.svg';
+
+import {toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+
+// ///////////  firebase Authentification for sign in  ///////
+
+import { getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 
 function SignIn() {
 
@@ -13,6 +24,7 @@ function SignIn() {
 
 const navigate = useNavigate();
 
+// ////////////// the change for input values ///////
 const onChange = (e) => {
   
   setFormData((prevState) => ({
@@ -20,6 +32,25 @@ const onChange = (e) => {
     [e.target.id]: e.target.value,
   }))
 }
+
+// ////////////  onSubmit for form ////////
+
+const onSubmit = async (e) => {
+  e.preventDefault()
+
+  try{
+  const auth = getAuth()
+
+  const userCredential = await signInWithEmailAndPassword(auth, email, password)
+
+  if(userCredential.user){
+    navigate("/")
+  }
+} catch(error){
+  toast.error('Wrong Email or Password')
+}
+}
+
 
   return (
     <>
@@ -29,7 +60,8 @@ const onChange = (e) => {
           </header>
 
           <main>
-            <form>
+
+            <form onSubmit={onSubmit}>
 
               <input type="email" className="emailInput" placeholder="Enter Email" id="email" value={email} onChange={onChange} />
 
