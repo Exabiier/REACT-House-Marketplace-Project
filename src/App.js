@@ -3,6 +3,10 @@ import Navbar from './Layout/Navbar';
 
 import { ToastContainer } from 'react-toastify';
 
+// /////////////// Private Route /////////////////
+
+import PrivateRoute from './Layout/PrivateRoute';
+
 
 // /////////////////// All our pages //////////////
 import DefaultPage from './Pages/Default/Default';
@@ -24,8 +28,13 @@ function App() {
                   <Route path="/offers" element={<Offers />} />
                   <Route path="/sign-in" element={<SignIn />} />
                   <Route path="/sign-up" element={<SignUp />} />
-                  <Route path="/profile" element={<Profile />} />
                   <Route path="*" element={<NoPage />} />
+
+                  {/* Private Route */}
+                  <Route path='profile' element={<PrivateRoute />}>
+                    <Route path="/profile" element={<Profile />} />
+                  </Route>
+
             </Routes>
           <Navbar /> 
         </Router>
