@@ -14,7 +14,9 @@ import {getAuth, createUserWithEmailAndPassword, updateProfile} from 'firebase/a
 import {db} from '../../firebase.config';
 import { setDoc, doc, serverTimestamp} from 'firebase/firestore'
 
+import OAuth from '../../Components/OAuth';
 // /////////////////////////////////////////////////
+
 
 
 
@@ -121,7 +123,7 @@ const onSubmit = async (e) => {
               </div>
             </form>
 
-            {/* Google OAuth */}
+            <OAuth />
 
             <Link to="/sign-in" className="registerLink">Sign In Instead</Link>
 

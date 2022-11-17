@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // ///////////  firebase Authentification for sign in  ///////
 
 import { getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+import OAuth from '../../Components/OAuth';
 
 function SignIn() {
 
@@ -88,7 +89,7 @@ const onSubmit = async (e) => {
               </div>
             </form>
 
-            {/* Google OAuth */}
+            <OAuth />
 
             <Link to="/sign-up" className="registerLink">Sign up Instead</Link>
 
