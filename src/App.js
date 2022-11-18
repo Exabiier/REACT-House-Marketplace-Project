@@ -9,6 +9,7 @@ import PrivateRoute from './Layout/PrivateRoute';
 
 
 // /////////////////// All our pages //////////////
+import Categories from './Pages/Categories/Categories';
 import DefaultPage from './Pages/Default/Default';
 import Explore from './Pages/Explore/Explore';
 import Offers from './Pages/Offers/Offers';
@@ -29,6 +30,8 @@ function App() {
                   <Route path="/sign-in" element={<SignIn />} />
                   <Route path="/sign-up" element={<SignUp />} />
                   <Route path="*" element={<NoPage />} />
+                  
+                  <Route path='/category/:categoryName' element={<Categories />} />
 
                   {/* Private Route */}
                   <Route path='profile' element={<PrivateRoute />}>
