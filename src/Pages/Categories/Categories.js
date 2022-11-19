@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import {useParams} from 'react-router-dom'
 import { toast } from 'react-toastify';
 import Spinner from '../../Components/Spinner';
+import ListingsComponent from './Components/ListingsComponent';
 
 // ////////////////////  Firebase  ////////////////////
 import { collection, getDocs, query, where,  orderBy, limit, startAfter } from 'firebase/firestore';
@@ -18,16 +19,23 @@ function Categories() {
     useEffect(()=>{
 
         // We make async functions within our useEffect because we cannot do it in the useEffect function itself:
+
         const fetchListings = async () => {
+
             try {
+
                 // Fetch referance
                 const listingsRef = collection(db, 'listings')
 
                 // Create a query
                 const q = query(
+
                     listingsRef,
+
                     where('type', '==', params.categoryName),
+
                     orderBy('timestamp', 'desc'),
+                    
                     limit(10)
                 )
 
@@ -41,7 +49,6 @@ function Categories() {
                     return listings.push({
                         id: doc.id,
                         data: doc.data()
-
                     })
                 })
 
@@ -70,12 +77,18 @@ function Categories() {
 
         {loading ?  
         (<Spinner />) 
+        
         : listings && listings.length > 0 
         ? (<>
                 <main>
                     <ul className='categeryListings'>
                     {listings.map((listing) => (
-                        <h3 key={listing.id}>{listing.data.name}</h3>
+                        <ListingsComponent
+                        listing={listing.data}
+                        id={listing.id}
+                        key={listing.id}
+                        />
+
                     ))}
                     </ul>
                 </main>
