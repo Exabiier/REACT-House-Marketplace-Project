@@ -7,7 +7,7 @@ import bathtubIcon from '../../../assets/svg/bathtubIcon.svg'
 
 
 function ListingsComponent({listing, id, onDelete }) {
-    console.log(listing)
+    
   return (
     <li className="categoryListing">
 

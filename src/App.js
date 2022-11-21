@@ -18,6 +18,7 @@ import SignUp from './Pages/SignUp/SignUp';
 import ForgotPassword from './Pages/ForgotPassword/ForgotPassword';
 import Profile from './Pages/Profile/Profile';
 import NoPage from './Pages/Nopage/NoPage';
+import Createlistings from './Pages/Createlistings.js/Createlistings';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                   <Route path="/sign-in" element={<SignIn />} />
                   <Route path="/sign-up" element={<SignUp />} />
                   <Route path="*" element={<NoPage />} />
+                  <Route path="/create-listing" element={<Createlistings />} />
                   
                   <Route path='/category/:categoryName' element={<Categories />} />
 
