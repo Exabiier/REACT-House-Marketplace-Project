@@ -18,7 +18,7 @@ import SignUp from './Pages/SignUp/SignUp';
 import ForgotPassword from './Pages/ForgotPassword/ForgotPassword';
 import Profile from './Pages/Profile/Profile';
 import NoPage from './Pages/Nopage/NoPage';
-import Createlistings from './Pages/Createlistings.js/Createlistings';
+import Createlistings from './Pages/Createlistings/Createlistings';
 
 function App() {
   return (
