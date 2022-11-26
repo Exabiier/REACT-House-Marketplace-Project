@@ -7,6 +7,14 @@ import { toast } from 'react-toastify'
 // ////////////////// Firebase //////////////////
 import {getAuth, onAuthStateChanged} from 'firebase/auth'
 
+// ////////////////// For File upload ///////////
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {db} from '../../firebase.config'
+
+// ////////////// uuid v4 //////////////
+
+import {v4 as uuidv4} from 'uuid'
+
 function Createlistings() {
 
     const[geolocationEnabled, setGeolocationEnabled] = useState(true)
@@ -121,6 +129,61 @@ const onSubmit = async (e) =>{
        location = address
     }
 
+// /////////////  Store images in fire base  //////////////////
+  const storeImage = async (image) => {
+
+    // When we complete a promise its a resolve, and if there is an error its rejected ////
+    return new Promise((resolve, reject) => {
+
+        // What storage we are using.
+        const storage = getStorage()
+
+        // for the the file name we get the users id, image name, then we make a uniique id number for it. 
+        const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`
+
+        // this is th path where we get the images. This is the refereance to were the imagaes are really stored
+        const storageRef = ref(storage, 'images/' + fileName)
+
+        const uploadTask = uploadBytesResumable(storageRef, image);
+
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                
+                switch (snapshot.state) {
+                case 'paused':
+                   
+                    break;
+                case 'running':
+                    
+                    break;
+                }
+            }, 
+            (error) => {
+                // we put the reject varaible in here
+               reject(error)
+            }, 
+            () => {
+                // Handle successful uploads on complete
+                // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    // we put the resolve() Method here. 
+                    resolve(downloadURL)
+                
+                });
+            }
+            );
+
+    })
+  }
+
+  const imgUrls = await Promise.all([...images].map((image)=> storeImage(image))).catch(() => {
+    setLoading(false);
+    toast.error('Images could not be uploaded')
+    return
+  })
+
+    
     setLoading(false)
 }
 
