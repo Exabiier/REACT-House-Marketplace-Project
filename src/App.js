@@ -20,6 +20,7 @@ import Profile from './Pages/Profile/Profile';
 import NoPage from './Pages/Nopage/NoPage';
 import Createlistings from './Pages/Createlistings/Createlistings';
 import Listing from './Pages/Listing/Listing';
+import Contact from './Pages/Contact/Contact';
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function App() {
                   <Route path='/category/:categoryName' element={<Categories />} />
                   
                   <Route path='/category/:categoryName/:listingId' element={<Listing />} />
+
+                  <Route path='/contact/:landlordId' element={<Contact />} />
 
                   {/* Private Route */}
                   <Route path='profile' element={<PrivateRoute />}>
