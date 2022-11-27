@@ -19,6 +19,7 @@ import ForgotPassword from './Pages/ForgotPassword/ForgotPassword';
 import Profile from './Pages/Profile/Profile';
 import NoPage from './Pages/Nopage/NoPage';
 import Createlistings from './Pages/Createlistings/Createlistings';
+import Listing from './Pages/Listing/Listing';
 
 function App() {
   return (
@@ -34,11 +35,14 @@ function App() {
                   <Route path="/create-listing" element={<Createlistings />} />
                   
                   <Route path='/category/:categoryName' element={<Categories />} />
+                  
+                  <Route path='/category/:categoryName/:listingId' element={<Listing />} />
 
                   {/* Private Route */}
                   <Route path='profile' element={<PrivateRoute />}>
                     <Route path="/profile" element={<Profile />} />
                   </Route>
+                
 
             </Routes>
           <Navbar /> 

@@ -6,8 +6,9 @@ import { toast } from 'react-toastify'
 
 // ////////////////// Firebase //////////////////
 import {getAuth, onAuthStateChanged} from 'firebase/auth'
+import {addDoc, collection, serverTimestamp} from 'firebase/firestore'
 
-// ////////////////// For File upload ///////////
+// ////////////////// Firebase File upload ///////////
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import {db} from '../../firebase.config'
 
@@ -126,7 +127,6 @@ const onSubmit = async (e) =>{
     } else {
        geolocation.lat = latitude
        geolocation.lat = longitude
-       location = address
     }
 
 // /////////////  Store images in fire base  //////////////////
@@ -176,15 +176,34 @@ const onSubmit = async (e) =>{
 
     })
   }
-
-  const imgUrls = await Promise.all([...images].map((image)=> storeImage(image))).catch(() => {
+  
+  const imageUrls = await Promise.all([...images].map((image)=> storeImage(image))).catch(() => {
     setLoading(false);
     toast.error('Images could not be uploaded')
     return
   })
 
-    
+ 
+
+// Adding object properties to send to the form
+  const formDataCopy = {
+    ...formData,
+    imageUrls,
+    geolocation,
+    timestamp: serverTimestamp()
+  }
+
+  
+//   To clean up our object we take away information that is needed
+  delete formDataCopy.images
+  delete formDataCopy.address
+  formDataCopy.location = address
+  !formDataCopy.offer && delete formDataCopy.discountedPrice
+
+  const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
     setLoading(false)
+    toast.success('Your listing was saved')
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
 }
 
 const onMutate = (e) =>{
