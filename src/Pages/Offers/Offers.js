@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import {useParams} from 'react-router-dom'
 import { toast } from 'react-toastify';
 import Spinner from '../../Components/Spinner';
-import ListingsComponent from '../Categories/Components/ListingsComponent';
+import ListingsComponent from '../../Components/ListingsComponent';
 
 // ////////////////////  Firebase  ////////////////////
 import { collection, getDocs, query, where,  orderBy, limit, startAfter } from 'firebase/firestore';
@@ -13,6 +13,7 @@ function Offer() {
 
     const [listings, setListings] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [lastFetchedListing, setLastFetchedListing] = useState(null)
 
     const params = useParams()
 
@@ -44,6 +45,10 @@ function Offer() {
                 // Execute query. QuerySnap is an array. 
                 const querySnap = await getDocs(q)
 
+                const lastVisible = querySnap.docs[querySnap.docs.length - 1]
+
+                setLastFetchedListing(lastVisible)
+
                 // the doc that comes back is a huge object type of data type of information so we need to be specicific on what we use from it. We have use .data() to get our data from it. 
                 querySnap.forEach((doc)=> {
                     return listings.push({
@@ -63,6 +68,50 @@ function Offer() {
         fetchListings()
 
     }, [])
+
+    const onFetchMoreListings = async () => {
+
+        try {
+
+            // Fetch referance
+            const listingsRef = collection(db, 'listings')
+
+            // Create a query
+            const q = query(
+
+                listingsRef,
+
+                where('offer', '==', true),
+
+                orderBy('timestamp', 'desc'),
+
+                startAfter(lastFetchedListing),
+                
+                limit(10)
+            )
+
+            const listings = []
+
+            const querySnap = await getDocs(q)
+
+            const lastVisible = querySnap.docs[querySnap.docs.length - 1]
+
+            setLastFetchedListing(lastVisible)
+
+            querySnap.forEach((doc)=> {
+                return listings.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            })
+
+            setListings((prevState) => [...prevState, ...listings])
+            setLoading(false)
+            
+        } catch (error) {
+            toast.error('Could not get listings')
+        }
+    }
 
   return (
     <div className='category'>
@@ -89,6 +138,10 @@ function Offer() {
                     ))}
                     </ul>
                 </main>
+
+                {lastFetchedListing && (
+                    <p className='loadMore' onClick={onFetchMoreListings}> Load More </p>
+                )}
         
         </>) 
         : (<p>There are no Current offers</p>)}

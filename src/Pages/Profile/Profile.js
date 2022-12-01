@@ -1,11 +1,25 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link} from 'react-router-dom'
+import ListingsComponent from '../../Components/ListingsComponent'
+
 
 
 // ///////  Getting user authorization information ////////
 import {getAuth, updateProfile} from 'firebase/auth'
 
-import {updateDoc, doc} from 'firebase/firestore'
+import {
+  updateDoc,
+   doc,
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  deleteDoc,
+  
+} from 'firebase/firestore'
+
 import {db} from '../../firebase.config'
 
 import { toast } from 'react-toastify'
@@ -15,98 +29,166 @@ import arrowRight from '../../assets/svg/keyboardArrowRightIcon.svg'
 import homeIcon from '../../assets/icons8-house-24.png'
 
 
+
+
 function Profile() {
 
-    const auth = getAuth()
+  const auth = getAuth()
+  const [loading, setLoading] = useState(true)
+  const [listings, setListings] = useState(null)
+  const [changeDetails, setChangeDetails] = useState(false)
+  const [formData, setFormData] = useState({
+    name: auth.currentUser.displayName,
+    email: auth.currentUser.email,
+  })
 
-    const [changeDetails, setChangeDetails] = useState(false)
+  const { name, email } = formData
 
-    const [formData, setFormData] = useState({
-      name: auth.currentUser.displayName,
-      email: auth.currentUser.email,
-    })
+  const navigate = useNavigate()
 
-    const { name, email} = formData;
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      const listingsRef = collection(db, 'listings')
 
+      const q = query(
+        listingsRef,
+        where('userRef', '==', auth.currentUser.uid),
+        orderBy('timestamp', 'desc')
+      )
 
-    const onLogout = async (e) => {
-      auth.signOut();
-      navigate('/')
+      const querySnap = await getDocs(q)
+
+      let listings = []
+
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        })
+      })
+
+      setListings(listings)
+      setLoading(false)
     }
 
-    const navigate = useNavigate()
+    fetchUserListings()
+  }, [auth.currentUser.uid])
 
-    // useEffect(() => {
-    //   setUser(auth.currentUser);
-    // })
+  const onLogout = () => {
+    auth.signOut()
+    navigate('/')
+  }
 
-    const onSubmit = async () => {
-      
-      try{
-          if(auth.currentUser.displayName !== name){
-            // We want to update displayname in fb
-            await updateProfile(auth.currentUser, {
-              displayName: name
-            })
+  const onSubmit = async () => {
+    try {
+      if (auth.currentUser.displayName !== name) {
+        // Update display name in fb
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        })
 
-            // update in firestore
-            const userRef = doc(db, 'users', auth.currentUser.uid)
-            await updateDoc(userRef, {
-              name
-            })
-          }
-      } catch(error){
-        toast.error('Could not update profile details')
+        // Update in firestore
+        const userRef = doc(db, 'users', auth.currentUser.uid)
+        await updateDoc(userRef, {
+          name,
+        })
       }
+    } catch (error) {
+      console.log(error)
+      toast.error('Could not update profile details')
     }
+  }
 
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }))
+  }
 
-    const onChange = (e) => {
-      setFormData((prevState)=>({
-        ...prevState,
-        [e.target.id]: e.target.value,
-
-      }))
+  const onDelete = async (listingId) => {
+    if (window.confirm('Are you sure you want to delete?')) {
+      await deleteDoc(doc(db, 'listings', listingId))
+      const updatedListings = listings.filter(
+        (listing) => listing.id !== listingId
+      )
+      setListings(updatedListings)
+      toast.success('Successfully deleted listing')
     }
+  }
+
+  const onEdit = (listingId) => navigate(`/edit-listing/${listingId}`)
+
 
   return (
     <div className='profile'>
-        <header className="profileHeader">
-          <p className="pageHeader">My Profile</p>
-          <button type="button" className="logOut" onClick={onLogout}>LOGOUT</button>
-        </header>
+      <header className='profileHeader'>
+        <p className='pageHeader'>My Profile</p>
+        <button type='button' className='logOut' onClick={onLogout}>
+          Logout
+        </button>
+      </header>
 
-        <main>
-          <div className="profileDetailsHeader">
-            <p className="profileDetailsText">Personal Details</p>
-
-            {/* the paragraph changes b between done and based on changeDetails since changeDetail */}
-            <p className="changePersonalDetails" onClick={ () => {
-              changeDetails && onSubmit();
+      <main>
+        <div className='profileDetailsHeader'>
+          <p className='profileDetailsText'>Personal Details</p>
+          <p
+            className='changePersonalDetails'
+            onClick={() => {
+              changeDetails && onSubmit()
               setChangeDetails((prevState) => !prevState)
-            }}>
-              {changeDetails ? 'done' : 'change'}
-            </p>
+            }}
+          >
+            {changeDetails ? 'done' : 'change'}
+          </p>
+        </div>
 
-          </div>
-          <div className="profileCard">
-            <form>
+        <div className='profileCard'>
+          <form>
+            <input
+              type='text'
+              id='name'
+              className={!changeDetails ? 'profileName' : 'profileNameActive'}
+              disabled={!changeDetails}
+              value={name}
+              onChange={onChange}
+            />
+            <input
+              type='email'
+              id='email'
+              className={!changeDetails ? 'profileEmail' : 'profileEmailActive'}
+              disabled={!changeDetails}
+              value={email}
+              onChange={onChange}
+            />
+          </form>
+        </div>
 
-              {/* input for changing the name  */}
-              <input type="text" id="name" className={!changeDetails ? 'profileName' : 'profileNameActive'} disabled={!changeDetails} value={name} onChange={onChange} />
+        <Link to='/create-listing' className='createListing'>
+          <img src={homeIcon} alt='home' />
+          <p>Sell or rent your home</p>
+          <img src={arrowRight} alt='arrow right' />
+        </Link>
 
-              {/* input for changing the email */}
-              <input type="text" id="email" className={!changeDetails ? 'profileEmail' : 'profileEmailActive'} disabled={!changeDetails} value={email} onChange={onChange} />
+        {!loading && listings?.length > 0 && (
+          <>
+            <p className='listingText'>Your Listings</p>
+            <ul className='listingsList'>
+              {listings.map((listing) => (
+                <ListingsComponent
+                  key={listing.id}
+                  listing={listing.data}
+                  id={listing.id}
+                  onDelete={() => onDelete(listing.id)}
+                  onEdit={() => onEdit(listing.id)}
+                />
+              ))}
+            </ul>
+          </>
+        )}
 
-            </form>
-          </div>
-
-          <Link to='/create-listing' className='createListing'>
-           <img src={homeIcon} alt='home' />
-           <p>Sell or rent your home</p> 
-           <img src={arrowRight} alt='arrow right'/>
-          </Link>
-        </main>
+        
+      </main>
     </div>
   )
 }

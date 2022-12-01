@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import {useParams} from 'react-router-dom'
 import { toast } from 'react-toastify';
 import Spinner from '../../Components/Spinner';
-import ListingsComponent from './Components/ListingsComponent';
+import ListingsComponent from '../../Components/ListingsComponent';
 
 // ////////////////////  Firebase  ////////////////////
 import { collection, getDocs, query, where,  orderBy, limit, startAfter } from 'firebase/firestore';
@@ -13,6 +13,8 @@ function Categories() {
 
     const [listings, setListings] = useState(null)
     const [loading, setLoading] = useState(true)
+
+    const [lastFetchedListing, setLastFetchedListing] = useState(null)
 
     const params = useParams()
 
@@ -44,6 +46,11 @@ function Categories() {
                 // Execute query. QuerySnap is an array. 
                 const querySnap = await getDocs(q)
 
+                // this code will get the last visibale post that we got from the get docs because we limited to 10 per query
+                const lastVisible = querySnap.docs[querySnap.docs.length - 1]
+
+                setLastFetchedListing(lastVisible)
+
                 // the doc that comes back is a huge object type of data type of information so we need to be specicific on what we use from it. We have use .data() to get our data from it. 
                 querySnap.forEach((doc)=> {
                     return listings.push({
@@ -63,6 +70,58 @@ function Categories() {
         fetchListings()
 
     }, [params.categoryName])
+
+    /////////////////////////////////////////////////////////////////////
+    ////////////////  More Listing From FireBase (Pagination) ///////////
+    /////////////////////////////////////////////////////////////////////
+
+    const onFetchMoreListings = async () => {
+
+        try {
+
+            // Fetch referance
+            const listingsRef = collection(db, 'listings')
+
+            // Create a query
+            const q = query(
+
+                listingsRef,
+
+                where('type', '==', params.categoryName),
+
+                orderBy('timestamp', 'desc'),
+
+                startAfter(lastFetchedListing),
+                
+                limit(10)
+            )
+
+            const listings = []
+
+            const querySnap = await getDocs(q)
+
+            const lastVisible = querySnap.docs[querySnap.docs.length - 1]
+
+            setLastFetchedListing(lastVisible)
+
+            querySnap.forEach((doc)=> {
+                return listings.push({
+                    id: doc.id,
+                    data: doc.data()
+                })
+            })
+
+            setListings((prevState) => [...prevState, ...listings])
+            setLoading(false)
+            
+        } catch (error) {
+            toast.error('Could not get listings')
+        }
+    }
+
+
+
+
 
   return (
     <div className='category'>
@@ -92,6 +151,10 @@ function Categories() {
                     ))}
                     </ul>
                 </main>
+
+                {lastFetchedListing && (
+                    <p className='loadMore' onClick={onFetchMoreListings}> Load More </p>
+                )}
         
         </>) 
         : (<p>No listings for {params.categoryName}</p>)}

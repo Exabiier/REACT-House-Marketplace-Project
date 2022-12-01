@@ -21,6 +21,7 @@ import NoPage from './Pages/Nopage/NoPage';
 import Createlistings from './Pages/Createlistings/Createlistings';
 import Listing from './Pages/Listing/Listing';
 import Contact from './Pages/Contact/Contact';
+import EditListing from './Pages/EditListing/EditListing';
 
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
                   <Route path='/category/:categoryName/:listingId' element={<Listing />} />
 
                   <Route path='/contact/:landlordId' element={<Contact />} />
+
+                  <Route path='/edit-listing/:listingId' element={<EditListing />} />
 
                   {/* Private Route */}
                   <Route path='profile' element={<PrivateRoute />}>
