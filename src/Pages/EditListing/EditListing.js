@@ -18,11 +18,12 @@ import {v4 as uuidv4} from 'uuid'
 
 
 function EditListing() {
+    //eslint-disable-next-line
     const[geolocationEnabled, setGeolocationEnabled] = useState(true)
 
     const[loading, setLoading] = useState(false)
 
-    const[listing, setListing] = useState(null)
+    const[listing, setListing] = useState(false)
 
     const[formData, setFormData] = useState({
         type: 'rent',
@@ -63,32 +64,23 @@ const isMounted = useRef(true)
 //////  useEffect  for editing   /////////////
 //////////////////////////////////////////////
 
-useEffect(() =>{
+useEffect(() => {
     setLoading(true)
     const fetchListing = async () => {
+      const docRef = doc(db, 'listings', params.listingId)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        setListing(docSnap.data())
+        setFormData({ ...docSnap.data(), address: docSnap.data().location })
+        setLoading(false)
+      } else {
+        navigate('/')
+        toast.error('Listing does not exist')
+      }
+    }
 
-        const docRef = doc(db, 'listings', params.listingId )
-        const docSnap = await getDoc(docRef)
-
-        if(docSnap.exists()){
-
-            setListing(docSnap.data())
-
-            // We set the form data form firebase so then we can set the forms and allow them to be edited by the user
-            setFormData({...docSnap.data(), address: docSnap.data().location })
-
-            setLoading(false)
-        } else {
-            navigate('/')
-            toast.error('Listing does not exist')
-        }
-    };
-
-    fetchListing();
-
-    // anything that deals wiht router-dom will be a dependency for useEffect
-
-}, [params.listingId, navigate])
+    fetchListing()
+  }, [params.listingId, navigate])
 
 //////////////////////////////////////////////////////////////////
 //////     useEffect redirect For wrong user for post   //////////
@@ -101,6 +93,7 @@ useEffect(() => {
         toast.error('You can not edit that listing')
         navigate('/')
     }
+    //eslint-disable-next-line
 }, [auth])
 
 
@@ -202,6 +195,7 @@ const onSubmit = async (e) =>{
 
         uploadTask.on('state_changed', 
             (snapshot) => {
+                //eslint-disable-next-line
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 
                 switch (snapshot.state) {
@@ -211,6 +205,8 @@ const onSubmit = async (e) =>{
                 case 'running':
                     
                     break;
+
+                default:
                 }
             }, 
             (error) => {
@@ -255,7 +251,7 @@ const onSubmit = async (e) =>{
   !formDataCopy.offer && delete formDataCopy.discountedPrice
 
     const docRef = doc(db, 'listings', params.listingId)
-    await updateDoc(doc, formDataCopy)
+    await updateDoc(docRef, formDataCopy)
     setLoading(false)
     toast.success('Your listing was saved')
     navigate(`/category/${formDataCopy.type}/${docRef.id}`)
@@ -561,7 +557,7 @@ if(loading){
                             required
                         />
                         <button type='submit' className='primaryButton createListingButton'>
-                            Create Listing
+                            Edit Listing
                         </button>
 
 

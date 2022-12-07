@@ -17,7 +17,7 @@ import {db} from '../../firebase.config'
 import {v4 as uuidv4} from 'uuid'
 
 function Createlistings() {
-
+    //eslint-disable-next-line 
     const[geolocationEnabled, setGeolocationEnabled] = useState(true)
 
     const[loading, setLoading] = useState(false)
@@ -148,6 +148,7 @@ const onSubmit = async (e) =>{
 
         uploadTask.on('state_changed', 
             (snapshot) => {
+                // eslint-disable-next-line
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 
                 switch (snapshot.state) {
@@ -157,6 +158,8 @@ const onSubmit = async (e) =>{
                 case 'running':
                     
                     break;
+
+                default:
                 }
             }, 
             (error) => {
