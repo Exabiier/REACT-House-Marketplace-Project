@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import {useParams, useSearchParams} from 'react-router-dom'
-import {doc, getDoc, getdoc} from 'firebase/firestore'
+
+import {doc, getDoc} from 'firebase/firestore'
 import {db} from '../../firebase.config'
 
 
@@ -12,6 +13,7 @@ function Contact() {
 
     const [message, setMessage] = useState('')
     const [landlord, setLandlord] = useState(null)
+    //eslint-disable-next-line
     const [searchParams, setSearchParams] = useSearchParams()
 
     const params = useParams()
@@ -32,7 +34,7 @@ function Contact() {
         getLandlord();
         console.log(landlord)
 
-    }, [params.landlordId])
+    }, [params.landlordId, landlord])
 
     // we set the maessgae with an on change so we can set the state of the message 
     const onChange = (e) =>{
