@@ -23,7 +23,7 @@ function OAuth() {
 
             const auth = getAuth();
 
-            const provider = new GoogleAuthProvider;
+            const provider = new GoogleAuthProvider();
 
             const result = await signInWithPopup( auth, provider )
 
